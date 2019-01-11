@@ -13,10 +13,10 @@
     "build:ts": "rollup -c",
     "prestart": "npm run clean",
     "start": "run-p watch start:server",
-    "start:server": "browser-sync start --server --ss './dist' -f './dist'",
+    "start:server": "browser-sync start --config bs-config.js",
     "watch": "run-p watch:assets watch:pug watch:scss watch:ts",
     "watch:assets": "cpx -w node_modules/@positron/core/dist/positron.js dist/assets",
-    "watch:pug": "pug src --out ./dist --pretty --watch",
+    "watch:pug": "pug src --out ./dist --pretty --watch -O src/examples.json",
     "watch:scss": "npm run build:scss && node-sass src/*.scss -o dist -w",
     "watch:ts": "rollup -cw"
   },

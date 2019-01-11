@@ -1,0 +1,12 @@
+{
+  "examples": [
+    {
+      "path": "01-hello-world",
+      "label": "Hello World"
+    },
+    {
+      "path": "02-node",
+      "label": "Node"
+    }
+  ]
+}

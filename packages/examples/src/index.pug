@@ -7,6 +7,7 @@ html(lang="en")
   body
     nav
       ol
-        li
-          a(href="01-hello-world" target="main") Hello World
+        each example in examples
+          li
+            a(href=example.path target="main")= example.label
     iframe(src="getting-started.html" name="main")

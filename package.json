@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Typescript 3D Game Engine",
   "scripts": {
-    "start": "lerna run --parallel start"
+    "start": "lerna run --parallel --stream start"
   },
   "author": "",
   "license": "ISC",
