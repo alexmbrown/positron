@@ -2,11 +2,11 @@
   "examples": [
     {
       "path": "01-hello-world",
-      "label": "Hello World"
+      "label": "hello world"
     },
     {
       "path": "02-node",
-      "label": "Node"
+      "label": "node"
     }
   ]
 }
