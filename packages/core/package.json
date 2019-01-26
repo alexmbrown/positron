@@ -10,6 +10,7 @@
     "clean": "del dist",
     "prebuild": "npm run clean",
     "build": "rollup -c",
+    "postbuild": "terser --compress -o dist/positron.min.js --mangle --source-map \"filename='positron.min'\"  -- dist/positron.js ",
     "start": "npm run watch",
     "watch": "rollup -cw"
   },
@@ -17,8 +18,8 @@
   "license": "ISC",
   "devDependencies": {
     "rollup": "^0.67.4",
-    "rollup-plugin-typescript": "^1.0.0",
     "rollup-plugin-typescript2": "^0.18.1",
+    "terser": "^3.14.1",
     "tslib": "^1.9.3",
     "typescript": "^3.2.2"
   },

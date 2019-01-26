@@ -1,10 +1,13 @@
-export abstract class Demo {
+import { Application } from './application';
 
-  init() {}
+export abstract class Demo extends Application {
+
+  public initialize() {
+    super.initialize();
+  }
 
   start() {
-    this.init();
-    console.log('Start worked!');
+    super.start();
   }
 
 }
