@@ -2,8 +2,10 @@ import { Context } from '../system/context';
 import { ContextType } from '../system/context-type';
 import { SystemListener } from '../system/system-listener';
 import { WebGL } from './webgl';
+import { KeyInput } from '../input/key-input';
+import { BrowserKeyInput } from './browser-key-input';
 
-export class WebglContext implements Context {
+export class BrowserContext implements Context {
 
   protected canvas: HTMLCanvasElement = document.createElement('canvas');
   private glContext: WebGLRenderingContext = this.canvas.getContext('webgl');
@@ -26,7 +28,7 @@ export class WebglContext implements Context {
     }
   }
 
-  protected run() {
+  public start(): void {
     if (!this.systemListener) {
       throw new Error('Context contains no system listener')
     }
@@ -44,7 +46,7 @@ export class WebglContext implements Context {
     this.systemListener.update();
   }
 
-  public create(waitFor: boolean): boolean {
+  public create(waitFor?: boolean) {
     if (!this.attached) {
       this.attach();
     }
@@ -54,8 +56,7 @@ export class WebglContext implements Context {
       this.glContext.clearColor(0.0, 0.0, 0.0, 1.0);
       this.glContext.clear(WebGL.COLOR_BUFFER_BIT);
     }
-
-    return false;
+    this.created = true;
   }
 
   public destroy(waitFor: boolean): boolean {
@@ -85,7 +86,7 @@ export class WebglContext implements Context {
   /*
   * Attach canvas to element or body
   */
-  attach(element?: HTMLElement) {
+  public attach(element?: HTMLElement) {
     if (element) {
       element.appendChild(this.canvas);
     } else {
@@ -96,6 +97,15 @@ export class WebglContext implements Context {
 
   public isAttached(): boolean {
     return this.attached;
+  }
+
+  public getKeyInput(): KeyInput {
+    // TODO: shouldn't be creating a new input every time
+    return new BrowserKeyInput(this);
+  }
+
+  public getCanvas(): HTMLCanvasElement {
+    return this.canvas;
   }
 
 }

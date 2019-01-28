@@ -1,18 +1,14 @@
 import typescript from 'rollup-plugin-typescript';
+import examplesData from './src/examples.json';
 
-const examples = [
-  '01-hello-world',
-  '02-node'
-]
-
-export default examples.map(example => ({
-  input: `./src/${example}/main.ts`,
+export default examplesData.examples.map(example => ({
+  input: `./src/${example.path}/main.ts`,
   output: {
     format: 'umd',
     globals: {
       '@positron/core': 'Positron'
     },
-    file: `./dist/${example}/main.js`
+    file: `./dist/${example.path}/main.js`
   },
   plugins: [
     typescript()

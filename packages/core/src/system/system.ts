@@ -5,15 +5,11 @@ import { BrowserSystem } from './browser-system';
 
 export class System {
 
-  private static delegate: SystemDelegate;
+  // TODO: eventual this delegate will be used to support different system types
+  private static delegate: SystemDelegate = new BrowserSystem();
 
   static newContext(type: ContextType): Context {
-    this.checkDelegate();
     return System.delegate.newContext(type);
-  }
-
-  private static checkDelegate() {
-    this.delegate = new BrowserSystem();
   }
 
 }
