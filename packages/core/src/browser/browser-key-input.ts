@@ -6,7 +6,7 @@ import { KeyInputEvent } from '../input/event/key-input-event';
 export class BrowserKeyInput extends KeyInput {
 
   private listener: RawInputListener;
-  private keyInputEvents: KeyInputEvent[];
+  private keyInputEvents: KeyInputEvent[] = [];
   private initialized: boolean = false;
 
   constructor(private context: BrowserContext) {
@@ -14,17 +14,20 @@ export class BrowserKeyInput extends KeyInput {
   }
 
   public initialize(): void {
-    if (!this.context.isRenderable()) {
-      return;
-    }
+    // if (!this.context.isRenderable()) {
+    //   return;
+    // }
 
-    this.context.getCanvas().addEventListener('keypress', this.onKeypress);
+    // TODO: this probably shouldn't be at the document level
+    document.addEventListener('keypress', (event: KeyboardEvent) => {
+      this.onKeypress(event);
+    });
 
     this.initialized = true;
   }
 
   private onKeypress(keyEvent: KeyboardEvent): void {
-    let code: number = Number.parseInt(keyEvent.code);
+    let code: number = keyEvent.keyCode;
     if (code < 0 || code > KeyInput.KEY_LAST) {
       return;
     }
@@ -43,9 +46,9 @@ export class BrowserKeyInput extends KeyInput {
   }
 
   public update(): void {
-    if (!this.context.isRenderable()) {
-      return;
-    }
+    // if (!this.context.isRenderable()) {
+    //   return;
+    // }
 
     while (this.keyInputEvents.length > 0) {
       this.listener.onKeyEvent(this.keyInputEvents.pop());

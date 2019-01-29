@@ -61,7 +61,7 @@ export abstract class KeyInput implements Input {
   static KEY_RSHIFT: number = 0x36;
   static KEY_MULTIPLY: number = 0x37;
   static KEY_LMENU: number = 0x38;
-  static KEY_SPACE: number = 0x39;
+  static KEY_SPACE: number = 32;
   static KEY_CAPITAL: number = 0x3A;
   static KEY_F1: number = 0x3B;
   static KEY_F2: number = 0x3C;

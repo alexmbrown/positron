@@ -7,7 +7,7 @@ import { PerformanceTimer } from '../system/performance-timer';
 import { KeyInput } from '../input/key-input';
 import { InputManager } from '../input/input-manager';
 
-export class Application implements SystemListener {
+export abstract class Application implements SystemListener {
 
   // protected render;
   // protected renderManager;
@@ -35,7 +35,7 @@ export class Application implements SystemListener {
    * Creating a rendering context and executing
    * the main loop in a separate thread.
    */
-  start(contextType: ContextType = ContextType.Display) {
+  start(contextType: ContextType = ContextType.Display): Promise<boolean> {
     // TODO: load settings
     this.context = System.newContext(contextType);
     this.context.setSystemListener(this);
@@ -44,12 +44,17 @@ export class Application implements SystemListener {
     // TODO: this is probably in the wrong spot
     // setTimeout(() => this.context.start, 0);
     this.initialize();
-    this.context.start();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.context.start();
+        resolve(true);
+      }, 0);
+    });
   }
 
   private initInput(): void {
     this.keyInput = this.context.getKeyInput();
-    if (this.keyInput != null) {
+    if (this.keyInput) {
       this.keyInput.initialize();
     }
 
@@ -86,7 +91,6 @@ export class Application implements SystemListener {
     // super.update(); // makes sure to execute AppTasks
     this.timer.update();
     this.inputManager.update(this.timer.getTimePerFrame());
-
 
     if (this.speed == 0 || this.paused) {
       return;
@@ -130,12 +134,16 @@ export class Application implements SystemListener {
     // TODO: initCamera();
 
     // if (inputEnabled){
-      this.initInput();
+    this.initInput();
     // }
     // TODO: initAudio();
 
     this.timer.reset();
 
+    this.prepare();
   }
 
+  public abstract prepare(): void;
 }
+
+

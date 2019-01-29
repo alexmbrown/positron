@@ -33,9 +33,11 @@ export class BrowserContext implements Context {
       throw new Error('Context contains no system listener')
     }
 
-    while(true) {
+    // while(true) {
+    setInterval(() => {
       this.runLoop();
-    }
+    }, 1000);
+    // }
   }
 
   protected runLoop() {

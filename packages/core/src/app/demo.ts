@@ -6,8 +6,10 @@ export class Demo extends Application {
   //   super.initialize();
   // }
 
-  start() {
-    super.start();
+  start(): Promise<boolean> {
+    return super.start();
   }
+
+  public prepare(): void {}
 
 }

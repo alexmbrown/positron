@@ -6,7 +6,6 @@ import { InputMapping } from './input-mapping';
 import { InputEvent } from './event/input-event';
 import { KeyTrigger } from './controls/key-trigger';
 import { InputListener } from './controls/input-listener';
-import { ActionListener } from './controls/action-listener';
 
 export class InputManager implements RawInputListener {
 
@@ -44,6 +43,7 @@ export class InputManager implements RawInputListener {
   }
 
   public onKeyEvent(evt: KeyInputEvent): void {
+    this.inputQueue.push(evt);
   }
 
   public addMapping(mappingName: string, ...triggers: Trigger[]): void {
@@ -53,17 +53,16 @@ export class InputManager implements RawInputListener {
       this.mappings[mappingName] =  mapping;
     }
 
-    mapping.triggers.forEach((trigger: Trigger) => {
+    triggers.forEach((trigger: Trigger) => {
       const hash: number = trigger.triggerHashCode();
       let names: InputMapping[] = this.bindings[hash];
-      if (names == null) {
+      if (!Array.isArray(names)) {
         names = [];
         this.bindings[hash] = names;
       }
       if (names.indexOf(mapping) < 0) {
         names.push(mapping);
-        // TODO: not sure what this does
-        // mapping.triggers.push(hash);
+        mapping.triggers.push(hash);
       } else {
         console.log("Attempted to add mapping \"{0}\" twice to trigger.", mappingName);
       }
@@ -150,6 +149,7 @@ export class InputManager implements RawInputListener {
   }
 
   private onKeyEventQueued(evt: KeyInputEvent): void {
+    console.log('Key Event');
     if (evt.isRepeating()) {
       return;
     }
@@ -161,7 +161,7 @@ export class InputManager implements RawInputListener {
 
   private invokeActions(hash: number, pressed: boolean): void {
     const maps: InputMapping[] = this.bindings[hash];
-    if (maps == null) {
+    if (!Array.isArray(maps) || maps.length <= 0) {
       return;
     }
 
@@ -172,15 +172,14 @@ export class InputManager implements RawInputListener {
       const listenerSize: number = listeners.length;
       for (let j = listenerSize - 1; j >= 0; j--) {
         const listener: InputListener = listeners[j];
-        if (listener instanceof ActionListener) {
-          listener.onAction(mapping.getName(), pressed, this.frameTPF);
+        if (listener instanceof Function) {
+          listener(mapping.getName(), pressed, this.frameTPF);
         }
       }
     }
   }
 
   private invokeUpdateActions(): void {
-    this.pressedButtons
     for (let hash in this.pressedButtons) {
 
       const pressTime: number = this.pressedButtons[hash];
@@ -197,6 +196,19 @@ export class InputManager implements RawInputListener {
     //   float value = axisValue.getValue();
     //   invokeAnalogs(hash, value * frameTPF, true);
     // }
+  }
+
+  public addListener(listener: InputListener, ...mappingNames: string[]): void {
+    mappingNames.forEach((mappingName: string) => {
+      let mapping: InputMapping = this.mappings[mappingName];
+      if (!mapping) {
+        mapping = new InputMapping(mappingName);
+        this.mappings[mappingName] = mapping;
+      }
+      if (mapping.listeners.indexOf(listener) < 0) {
+        mapping.listeners.push(listener);
+      }
+    });
   }
 
 }
