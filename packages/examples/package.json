@@ -9,7 +9,7 @@
     "build": "run-p build:assets build:pug build:scss build:ts",
     "build:assets": "cpx node_modules/@positron/core/dist/positronjs dist/assets",
     "build:pug": "pug src --out ./dist --pretty",
-    "build:scss": "node-sass src/*.scss -o dist",
+    "build:scss": "node-sass src/ -o dist/",
     "build:ts": "rollup -c",
     "prestart": "npm run clean",
     "start": "run-p watch start:server",
@@ -17,7 +17,7 @@
     "watch": "run-p watch:assets watch:pug watch:scss watch:ts",
     "watch:assets": "cpx -w node_modules/@positron/core/dist/positron.js dist/assets",
     "watch:pug": "pug src --out ./dist --pretty --watch -O src/examples.json",
-    "watch:scss": "npm run build:scss && node-sass src/*.scss -o dist -w",
+    "watch:scss": "npm run build:scss && node-sass src/ -o dist/ -w",
     "watch:ts": "rollup -cw"
   },
   "author": "",
