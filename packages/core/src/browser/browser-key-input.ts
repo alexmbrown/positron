@@ -40,11 +40,6 @@ export class BrowserKeyInput extends KeyInput {
     this.keyInputEvents.push(event);
   }
 
-  public getKeyCount(): number {
-    // TODO fix this
-    return 255;
-  }
-
   public update(): void {
     // if (!this.context.isRenderable()) {
     //   return;
@@ -60,7 +55,7 @@ export class BrowserKeyInput extends KeyInput {
       return;
     }
 
-    this.context.getCanvas().removeEventListener('keypress', this.onKeypress);
+    document.removeEventListener('keypress', this.onKeypress);
   }
 
   public isInitialized(): boolean {

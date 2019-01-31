@@ -6,6 +6,7 @@ import { Timer } from '../system/timer';
 import { PerformanceTimer } from '../system/performance-timer';
 import { KeyInput } from '../input/key-input';
 import { InputManager } from '../input/input-manager';
+import { MouseInput } from '../input/mouse-input';
 
 export abstract class Application implements SystemListener {
 
@@ -14,6 +15,7 @@ export abstract class Application implements SystemListener {
   protected timer: Timer = new PerformanceTimer();
   // protected camera;
   protected keyInput: KeyInput;
+  protected mouseInput: MouseInput;
   public inputManager: InputManager;
 
   protected speed: number = 1.0;
@@ -58,7 +60,12 @@ export abstract class Application implements SystemListener {
       this.keyInput.initialize();
     }
 
-    this.inputManager = new InputManager(this.keyInput);
+    this.mouseInput = this.context.getMouseInput();
+    if (this.mouseInput) {
+      this.mouseInput.initialize();
+    }
+
+    this.inputManager = new InputManager(this.keyInput, this.mouseInput);
   }
 
   destroy(): void {

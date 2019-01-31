@@ -1,6 +1,7 @@
 import { SystemListener } from './system-listener';
 import { ContextType } from './context-type';
 import { KeyInput } from '../input/key-input';
+import { MouseInput } from '../input/mouse-input';
 
 export interface Context {
   attach(element?: HTMLElement): void;
@@ -10,7 +11,7 @@ export interface Context {
   // getSettings(): AppSettings;
   // getRenderer(): Renderer;
   // getOpenCLContext(): CLContext;
-  // getMouseInput(): MouseInput;
+  getMouseInput(): MouseInput;
   getKeyInput(): KeyInput;
   // getJoyInput(): JoyInput;
   // getTouchInput(): TouchInput;

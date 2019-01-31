@@ -1,5 +1,12 @@
 import { InputListener } from './input-listener';
 
-export abstract class ActionListener implements InputListener {
-  public onAction(name: string, isPressed: boolean, tpf: number): void {};
+export type OnAction = (name: string, isPressed: boolean, tpf: number) => void;
+
+export class ActionListener implements InputListener {
+
+  constructor(private listener: OnAction) {}
+
+  public onAction(name: string, isPressed: boolean, tpf: number): void {
+    this.listener(name, isPressed, tpf);
+  };
 }

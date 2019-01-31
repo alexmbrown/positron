@@ -4,6 +4,8 @@ import { SystemListener } from '../system/system-listener';
 import { WebGL } from './webgl';
 import { KeyInput } from '../input/key-input';
 import { BrowserKeyInput } from './browser-key-input';
+import { MouseInput } from '../input/mouse-input';
+import { BrowserMouseInput } from './browser-mouse-input';
 
 export class BrowserContext implements Context {
 
@@ -104,6 +106,11 @@ export class BrowserContext implements Context {
   public getKeyInput(): KeyInput {
     // TODO: shouldn't be creating a new input every time
     return new BrowserKeyInput(this);
+  }
+
+  public getMouseInput(): MouseInput {
+    // TODO: shouldn't be creating a new input every time
+    return new BrowserMouseInput(this);
   }
 
   public getCanvas(): HTMLCanvasElement {

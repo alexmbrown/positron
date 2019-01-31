@@ -6,6 +6,15 @@ import { InputMapping } from './input-mapping';
 import { InputEvent } from './event/input-event';
 import { KeyTrigger } from './controls/key-trigger';
 import { InputListener } from './controls/input-listener';
+import { MouseButtonEvent } from './event/mouse-button-event';
+import { MouseMotionEvent } from './event/mouse-motion-event';
+import { MouseButtonTrigger } from './controls/mouse-button-trigger';
+import { MouseInput } from './mouse-input';
+import { MouseAxisTrigger } from './controls/mouse-axis-trigger';
+import { FastMath } from '../math/fast-math';
+import { AnalogListener, OnAnalog } from './controls/analog-listener';
+import { ActionListener, OnAction } from './controls/action-listener';
+import has = Reflect.has;
 
 export class InputManager implements RawInputListener {
 
@@ -13,6 +22,7 @@ export class InputManager implements RawInputListener {
   private lastLastUpdateTime: number = 0;
   private lastUpdateTime: number = 0;
   private frameDelta: number = 0;
+  private globalAxisDeadZone = 0.05;
 
   private firstTime: number = 0;
   private mappings: {[key: string]: InputMapping} = {};
@@ -20,27 +30,24 @@ export class InputManager implements RawInputListener {
   private inputQueue: InputEvent[] = [];
   private rawListeners: RawInputListener[] = [];
   private pressedButtons: {[number: number]: number} = {};
+  private axisValues: {[number: number]: number} = {};
 
   private safeMode: boolean = false;
   private eventsPermitted: boolean = false;
 
-  constructor(private keys: KeyInput) {
-    if (!this.keys) {
+  constructor(private keys: KeyInput, private mouse: MouseInput) {
+    if (!this.keys || !this.mouse) {
       throw new Error("Mouse and keyboard must be defined");
     }
 
-    this.keys = keys;
-
     keys.setInputListener(this);
-
+    mouse.setInputListener(this);
     this.firstTime = keys.getInputTime();
   }
 
-  public beginInput(): void {
-  }
+  public beginInput(): void {}
 
-  public endInput(): void {
-  }
+  public endInput(): void {}
 
   public onKeyEvent(evt: KeyInputEvent): void {
     this.inputQueue.push(evt);
@@ -83,7 +90,7 @@ export class InputManager implements RawInputListener {
     this.eventsPermitted = true;
 
     this.keys.update();
-    // this.mouse.update();
+    this.mouse.update();
 
     this.eventsPermitted = false;
 
@@ -106,15 +113,13 @@ export class InputManager implements RawInputListener {
           continue;
         }
 
-        // if (event instanceof MouseMotionEvent) {
-        //   listener.onMouseMotionEvent((MouseMotionEvent) event);
-        // } else if (event instanceof KeyInputEvent) {
-        //   listener.onKeyEvent((KeyInputEvent) event);
-        // } else if (event instanceof MouseButtonEvent) {
-        //   listener.onMouseButtonEvent((MouseButtonEvent) event);
-        // }
-
-        if (event instanceof KeyInputEvent) {
+        if (event instanceof MouseMotionEvent) {
+          listener.onMouseMotionEvent(event);
+        } else if (event instanceof KeyInputEvent) {
+          listener.onKeyEvent(event);
+        } else if (event instanceof MouseButtonEvent) {
+          listener.onMouseButtonEvent(event);
+        } else if (event instanceof KeyInputEvent) {
           listener.onKeyEvent(event);
         }
       }
@@ -128,17 +133,13 @@ export class InputManager implements RawInputListener {
         continue;
       }
 
-      // if (event instanceof MouseMotionEvent) {
-      //   onMouseMotionEventQueued((MouseMotionEvent) event);
-      // } else if (event instanceof KeyInputEvent) {
-      //   onKeyEventQueued((KeyInputEvent) event);
-      // } else if (event instanceof MouseButtonEvent) {
-      //   onMouseButtonEventQueued((MouseButtonEvent) event);
-      // } else if (event instanceof JoyAxisEvent) {
-      //   onJoyAxisEventQueued((JoyAxisEvent) event);
-      // }
-
-      if (event instanceof KeyInputEvent) {
+      if (event instanceof MouseMotionEvent) {
+        this.onMouseMotionEventQueued(event);
+      } else if (event instanceof KeyInputEvent) {
+        this.onKeyEventQueued(event);
+      } else if (event instanceof MouseButtonEvent) {
+        this.onMouseButtonEventQueued(event);
+      } else if (event instanceof KeyInputEvent) {
         this.onKeyEventQueued(event);
       }
 
@@ -149,14 +150,13 @@ export class InputManager implements RawInputListener {
   }
 
   private onKeyEventQueued(evt: KeyInputEvent): void {
-    console.log('Key Event');
     if (evt.isRepeating()) {
       return;
     }
 
     const hash: number = KeyTrigger.keyHash(evt.getKeyCode());
     this.invokeActions(hash, evt.isPressed());
-    // this.invokeTimedActions(hash, evt.getTime(), evt.isPressed());
+    this.invokeTimedActions(hash, evt.getTime(), evt.isPressed());
   }
 
   private invokeActions(hash: number, pressed: boolean): void {
@@ -172,33 +172,136 @@ export class InputManager implements RawInputListener {
       const listenerSize: number = listeners.length;
       for (let j = listenerSize - 1; j >= 0; j--) {
         const listener: InputListener = listeners[j];
-        if (listener instanceof Function) {
-          listener(mapping.getName(), pressed, this.frameTPF);
+        if (listener instanceof ActionListener) {
+          listener.onAction(mapping.getName(), pressed, this.frameTPF);
         }
       }
     }
   }
 
   private invokeUpdateActions(): void {
-    for (let hash in this.pressedButtons) {
+    for (let hashKey in this.pressedButtons) {
+      const hash = parseInt(hashKey);
 
       const pressTime: number = this.pressedButtons[hash];
       const timeDelta: number = this.lastUpdateTime - Math.max(this.lastLastUpdateTime, pressTime);
 
-      // TODO
-      // if (timeDelta > 0) {
-      //   this.invokeAnalogs(hash, computeAnalogValue(timeDelta), false);
-      // }
+      if (timeDelta > 0) {
+        this.invokeAnalogs(hash, this.computeAnalogValue(timeDelta), false);
+      }
     }
 
-    // for (Entry<Float> axisValue : axisValues) {
-    //   int hash = axisValue.getKey();
-    //   float value = axisValue.getValue();
-    //   invokeAnalogs(hash, value * frameTPF, true);
-    // }
+    for (let hashKey in this.axisValues) {
+      const hash = parseInt(hashKey);
+      const value: number = this.axisValues[hash];
+      this.invokeAnalogs(hash, value * this.frameTPF, true);
+    }
   }
 
-  public addListener(listener: InputListener, ...mappingNames: string[]): void {
+  private invokeAnalogs(hash: number, value: number, isAxis: boolean): void {
+    console.log(hash);
+    const maps = this.bindings[hash];
+    if (!maps) {
+      return;
+    }
+
+    if (!isAxis) {
+      value *= this.frameTPF;
+    }
+
+    const size: number = maps.length;
+    for (let i = size - 1; i >= 0; i--) {
+      const mapping: InputMapping = maps[i];
+      const listeners: InputListener[] = mapping.listeners;
+      const listenerSize: number = listeners.length;
+      for (let j = listenerSize - 1; j >= 0; j--) {
+        const listener: InputListener = listeners[j];
+        if (listener instanceof AnalogListener) {
+          listener.onAnalog(mapping.getName(), value, this.frameTPF);
+        }
+      }
+    }
+  }
+
+  private invokeAnalogsAndActions(hash: number, value: number, effectiveDeadZone: number, applyTpf: boolean): void {
+
+    if (value < effectiveDeadZone) {
+      this.invokeAnalogs(hash, value, !applyTpf);
+      return;
+    }
+
+    const maps: InputMapping[] = this.bindings[hash];
+    if (maps == null) {
+      return;
+    }
+
+    const valueChanged: boolean = !this.axisValues[hash];
+    if (applyTpf) {
+      value *= this.frameTPF;
+    }
+
+    const size: number = maps.length;
+    for (let i = size - 1; i >= 0; i--) {
+      const mapping: InputMapping = maps[i];
+      const listeners: InputListener[] = mapping.listeners;
+      const listenerSize: number = listeners.length;
+      for (let j = listenerSize - 1; j >= 0; j--) {
+        const listener: InputListener = listeners[j];
+
+        console.log('invokeAnalogsAndActions', listener);
+
+        if (listener instanceof ActionListener && valueChanged) {
+          listener.onAction(mapping.getName(), true, this.frameTPF);
+        } else if (listener instanceof AnalogListener) {
+          listener.onAnalog(mapping.getName(), value, this.frameTPF);
+        }
+
+      }
+    }
+  }
+
+  private computeAnalogValue(timeDelta: number): number {
+    if (this.safeMode || this.frameDelta == 0) {
+      return 1.0;
+    } else {
+      return FastMath.clamp(timeDelta / this.frameDelta, 0, 1);
+    }
+  }
+
+  private invokeTimedActions(hash: number, time: number, pressed: boolean): void {
+    if (!this.bindings[hash]) {
+      return;
+    }
+
+    if (pressed) {
+      this.pressedButtons[hash] = time;
+    } else {
+      const pressTimeObj: number = this.pressedButtons[hash];
+      delete this.pressedButtons[hash];
+      if (!pressTimeObj) {
+        return;
+      }
+
+      const pressTime: number = pressTimeObj;
+      const lastUpdate: number = this.lastLastUpdateTime;
+      const releaseTime: number = time;
+      const timeDelta: number = releaseTime - Math.max(pressTime, lastUpdate);
+
+      if (timeDelta > 0) {
+        this.invokeAnalogs(hash, this.computeAnalogValue(timeDelta), false);
+      }
+    }
+  }
+
+  public addListener(listener: OnAction, ...mappingNames: string[]): void {
+    this.mapListener(new ActionListener(listener), mappingNames);
+  }
+
+  public addAnalogListener(listener: () => void, ...mappingNames: string[]): void {
+    this.mapListener(new AnalogListener(listener), mappingNames);
+  }
+
+  private mapListener(listener: InputListener, mappingNames: string[]): void {
     mappingNames.forEach((mappingName: string) => {
       let mapping: InputMapping = this.mappings[mappingName];
       if (!mapping) {
@@ -209,6 +312,37 @@ export class InputManager implements RawInputListener {
         mapping.listeners.push(listener);
       }
     });
+  }
+
+  public onMouseButtonEvent(evt: MouseButtonEvent): void {
+    // cursorPos.set(evt.getX(), evt.getY());
+    this.inputQueue.push(evt);
+  }
+
+  private onMouseButtonEventQueued(evt: MouseButtonEvent): void {
+    const hash: number = MouseButtonTrigger.mouseButtonHash(evt.getButtonIndex());
+    this.invokeActions(hash, evt.isPressed());
+    this.invokeTimedActions(hash, evt.getTime(), evt.isPressed());
+  }
+
+  public onMouseMotionEvent(evt: MouseMotionEvent): void {
+    // cursorPos.set(evt.getX(), evt.getY());
+    this.inputQueue.push(evt);
+  }
+
+  private onMouseMotionEventQueued(evt: MouseMotionEvent): void {
+    if (evt.getDX() !== 0) {
+      const val: number = Math.abs(evt.getDX()) / 1024.0;
+      this.invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_X, evt.getDX() < 0), val, this.globalAxisDeadZone, false);
+    }
+    if (evt.getDY() !== 0) {
+      const val: number = Math.abs(evt.getDY()) / 1024.0;
+      this.invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_Y, evt.getDY() < 0), val, this.globalAxisDeadZone, false);
+    }
+    if (evt.getDeltaWheel() !== 0) {
+      const val: number = Math.abs(evt.getDeltaWheel()) / 100.0;
+      this.invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_WHEEL, evt.getDeltaWheel() < 0), val, this.globalAxisDeadZone, false);
+    }
   }
 
 }
