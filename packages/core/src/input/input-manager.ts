@@ -199,7 +199,6 @@ export class InputManager implements RawInputListener {
   }
 
   private invokeAnalogs(hash: number, value: number, isAxis: boolean): void {
-    console.log(hash);
     const maps = this.bindings[hash];
     if (!maps) {
       return;
@@ -248,8 +247,6 @@ export class InputManager implements RawInputListener {
       for (let j = listenerSize - 1; j >= 0; j--) {
         const listener: InputListener = listeners[j];
 
-        console.log('invokeAnalogsAndActions', listener);
-
         if (listener instanceof ActionListener && valueChanged) {
           listener.onAction(mapping.getName(), true, this.frameTPF);
         } else if (listener instanceof AnalogListener) {
@@ -297,7 +294,7 @@ export class InputManager implements RawInputListener {
     this.mapListener(new ActionListener(listener), mappingNames);
   }
 
-  public addAnalogListener(listener: () => void, ...mappingNames: string[]): void {
+  public addAnalogListener(listener: OnAnalog, ...mappingNames: string[]): void {
     this.mapListener(new AnalogListener(listener), mappingNames);
   }
 

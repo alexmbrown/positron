@@ -9,3 +9,12 @@ export function isUndefined(value: any) {
 export function isNumber(value: any) {
   return typeof value === 'number';
 }
+
+export function isInteger(value: any) {
+  return Number.isInteger(value);
+}
+
+export function isNumberArray(value: any) {
+  return Array.isArray(value) &&
+    value.reduce((v: any, acc: boolean) => acc && typeof v === 'number', true);
+}

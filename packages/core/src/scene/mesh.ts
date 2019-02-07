@@ -31,7 +31,7 @@ export class Mesh {
   protected setBuffer(type: BufferType, components: number, buffer: ArrayBufferLike) {
     const format: BufferFormat = BufferFormat.fromBuffer(buffer);
     const vb: VertexBuffer = this.getBuffer(type);
-    if (vb){
+    if (!vb) {
       let vb: VertexBuffer = new VertexBuffer(type);
       vb.setupData(BufferUsage.Dynamic, components, format, buffer);
       this.setVertexBuffer(vb);
@@ -45,7 +45,7 @@ export class Mesh {
   }
 
   public updateCounts() {
-    if (this.getBuffer(BufferType.InterleavedData) !== null) {
+    if (this.getBuffer(BufferType.InterleavedData)) {
       throw new Error("Should update counts before interleave");
     }
 
