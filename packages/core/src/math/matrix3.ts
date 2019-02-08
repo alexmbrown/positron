@@ -10,20 +10,27 @@ import { Importer } from '../export/importer';
 import { OutputCapsule } from '../export/output-capsule';
 import { FastMath } from './fast-math';
 import { InputCapsule } from '../export/input-capsule';
+import { Matrix4 } from './matrix4';
 
+/**
+ * <code>Matrix3f</code> defines a 3x3 matrix. Matrix data is maintained
+ * internally and is accessible via the get and set methods. Convenience methods
+ * are used for matrix operations as well as generating a matrix from a given
+ * set of values.
+ */
 export class Matrix3 implements Savable, Cloneable<Matrix3> {
 
   private static logger: Logger = Logger.getLogger('Matrix3');
 
-  protected m00: number;
-  protected m01: number;
-  protected m02: number;
-  protected m10: number;
-  protected m11: number;
-  protected m12: number;
-  protected m20: number;
-  protected m21: number;
-  protected m22: number;
+  public m00: number;
+  public m01: number;
+  public m02: number;
+  public m10: number;
+  public m11: number;
+  public m12: number;
+  public m20: number;
+  public m21: number;
+  public m22: number;
 
   public static ZERO: Matrix3 = new Matrix3(0, 0, 0, 0, 0, 0, 0, 0, 0);
   public static IDENTITY: Matrix3 = new Matrix3();
@@ -93,7 +100,7 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
     m22?: number
   ) {
     if (arg1 instanceof Matrix3) {
-      this.set(arg1);
+      this.copy(arg1);
     } else if (
       isNumber(arg1) &&
       isNumber(m01) &&
@@ -143,7 +150,7 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
    *            the matrix to copy.
    * @return this
    */
-  public set(matrix: Matrix3): Matrix3 {
+  public copy(matrix: Matrix3): Matrix3 {
     if (!matrix) {
       this.loadIdentity();
     } else {
@@ -221,7 +228,7 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
 
   /**
    *
-   * <code>setFromArray</code> sets the values of the matrix to those supplied by the
+   * <code>setFrom2DArray</code> sets the values of the matrix to those supplied by the
    * 3x3 two dimenion array.
    *
    * @param matrix
@@ -566,7 +573,7 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
     return fb;
   }
 
-  public fillFloatArray(f: number[], columnMajor: boolean): void {
+  public fillArray(f: number[], columnMajor: boolean): void {
     if (columnMajor) {
       f[0] = this.m00;
       f[1] = this.m10;
@@ -693,17 +700,17 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
   }
 
   /**
-   * <code>set</code> sets the values of this matrix from an array of
+   * <code>setFromArray</code> sets the values of this matrix from an array of
    * values assuming that the data is rowMajor order;
    *
    * @param matrix
    *            the matrix to set the value to.
    * @return this
    */
-  public setFromAway(matrix: number[]): Matrix3;
+  public setFromArray(matrix: number[]): Matrix3;
 
   /**
-   * <code>set</code> sets the values of this matrix from an array of
+   * <code>setFromArray</code> sets the values of this matrix from an array of
    * values;
    *
    * @param matrix
@@ -712,12 +719,12 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
    *            whether the incoming data is in row or column major order.
    * @return this
    */
-  public setFromAway(matrix: number[], rowMajor: boolean): Matrix3;
+  public setFromArray(matrix: number[], rowMajor: boolean): Matrix3;
 
   /**
    * Implementation
    */
-  public setFromAway(matrix: number[], rowMajor: boolean = true): Matrix3 {
+  public setFromArray(matrix: number[], rowMajor: boolean = true): Matrix3 {
     if (isNumberArray(matrix) && matrix.length !== 9) {
       throw new Error("Array must be of size 9.");
     }
@@ -782,9 +789,9 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
    * @return true if this matrix is identity
    */
   public isIdentity(): boolean {
-    return (this.m00 == 1 && this.m01 == 0 && this.m02 == 0)
-      && (this.m10 == 0 && this.m11 == 1 && this.m12 == 0)
-      && (this.m20 == 0 && this.m21 == 0 && this.m22 == 1);
+    return (this.m00 === 1 && this.m01 === 0 && this.m02 === 0)
+      && (this.m10 === 0 && this.m11 === 1 && this.m12 === 0)
+      && (this.m20 === 0 && this.m21 === 0 && this.m22 == 1);
   }
 
   /**
@@ -1240,7 +1247,16 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
    *            the matrix to compare for equality
    * @return true if they are equal
    */
-  public equals(comp: Matrix3): boolean {
+  public equals(o: any): boolean {
+    if (!(o instanceof Matrix3)) {
+      return false;
+    }
+
+    if (this === o) {
+      return true;
+    }
+
+    const comp: Matrix3 = o as Matrix3;
     if (NumberUtils.compare(this.m00, comp.m00) !== 0) {
       return false;
     }

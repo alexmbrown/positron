@@ -13,10 +13,10 @@ export class Quaternion {
     .fromAxes(Vector3.UNIT_X, Vector3.UNIT_Y, Vector3.UNIT_Z);
   static ZERO: Quaternion = new Quaternion(0, 0, 0, 0);
 
-  protected x: number;
-  protected y: number;
-  protected z: number;
-  protected w: number;
+  public x: number;
+  public y: number;
+  public z: number;
+  public w: number;
 
   /**
    * Constructor instantiates a new <code>Quaternion</code> object
@@ -285,7 +285,7 @@ export class Quaternion {
    *            the matrix that defines the rotation.
    */
   public fromRotationMatrix(matrix: Matrix3): Quaternion {
-    return fromRotationMatrix(matrix.m00, matrix.m01, matrix.m02, matrix.m10,
+    return this.fromRotationMatrix(matrix.m00, matrix.m01, matrix.m02, matrix.m10,
       matrix.m11, matrix.m12, matrix.m20, matrix.m21, matrix.m22);
   }
 
