@@ -102,21 +102,21 @@ export class Matrix4 implements Savable, Cloneable<Matrix4> {
 
   constructor(
     arg1?: number|number[]|Matrix4,
-    m01: number,
-    m02: number,
-    m03: number,
-    m10: number,
-    m11: number,
-    m12: number,
-    m13: number,
-    m20: number,
-    m21: number,
-    m22: number,
-    m23: number,
-    m30: number,
-    m31: number,
-    m32: number,
-    m33: number
+    m01?: number,
+    m02?: number,
+    m03?: number,
+    m10?: number,
+    m11?: number,
+    m12?: number,
+    m13?: number,
+    m20?: number,
+    m21?: number,
+    m22?: number,
+    m23?: number,
+    m30?: number,
+    m31?: number,
+    m32?: number,
+    m33?: number
   ) {
     if (arg1 instanceof Matrix4) {
       this.copy(arg1)
@@ -2395,7 +2395,6 @@ export class Matrix4 implements Savable, Cloneable<Matrix4> {
       return false;
     }
     return Math.abs(mat.m32) <= 1e-4;
-
   }
 
   public multQuatLocal(rotation: Quaternion): void {
