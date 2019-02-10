@@ -850,7 +850,6 @@ export class Vector4 implements Savable, Cloneable<Vector4> {
       return false;
     }
     return NumberUtils.compare(this.w, comp.w) === 0;
-
   }
 
   /**
@@ -871,7 +870,6 @@ export class Vector4 implements Savable, Cloneable<Vector4> {
       return false;
     }
     return NumberUtils.compare(Math.abs(other.w - this.w), epsilon) <= 0;
-
   }
 
   /**
