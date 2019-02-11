@@ -1,8 +1,6 @@
 import { Cloneable } from '../util/cloneable';
 import { OutputCapsule } from '../export/output-capsule';
-import { FastMath } from './fast-math';
 import { Logger } from '../util/logger';
-import { AssertionError, throws } from 'assert';
 import { InputCapsule } from '../export/input-capsule';
 import { Savable } from '../export/savable';
 import { isNumber, isNumberArray } from '../util/type-utils';
@@ -239,7 +237,7 @@ export class Vector2 implements Savable, Cloneable<Vector2> {
    * Check a vector... if it is null or its  are : number NaN or infinite, return
    * false. Else return true.
    *
-   * @param vector
+   * @param vec
    *            the vector to check
    * @return true or false as stated above.
    */
@@ -269,7 +267,7 @@ export class Vector2 implements Savable, Cloneable<Vector2> {
    * @return the magnitude squared of the vector.
    */
   public lengthSquared(): number {
-    return this.x * this.x + this.y * y;
+    return this.x * this.x + this.y * this.y;
   }
 
   /**
@@ -701,7 +699,6 @@ export class Vector2 implements Savable, Cloneable<Vector2> {
     this.x = capsule.readNumber("x", 0);
     this.y = capsule.readNumber("y", 0);
   }
-
 
   public rotateAroundOrigin(angle: number, cw: boolean): void {
     if (cw) {
