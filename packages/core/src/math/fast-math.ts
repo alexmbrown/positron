@@ -4,6 +4,7 @@ export class FastMath {
   public static ZERO_TOLERANCE: number = 0.0001;
   public static DEG_TO_RAD: number = Math.PI / 180.0;
   public static RAD_TO_DEG: number = 180.0 / Math.PI;
+  public static ONE_THIRD: number = 1.0 / 3.0;
 
   static clamp(input: number, min: number, max: number): number {
     return (input < min) ? min : (input > max) ? max : input;

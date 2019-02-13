@@ -107,12 +107,14 @@ export class Vector3 {
     throw new Error("index must be either 0, 1 or 2");
   }
 
-  setVec(vec: Vector3): Vector3 {
+  copy(vec: Vector3): Vector3 {
     if (vec instanceof  Vector3) {
       this.x = vec.x;
       this.y = vec.y;
       this.z = vec.z;
       return this;
+    } else {
+      new Vector3();
     }
   }
 
@@ -148,7 +150,7 @@ export class Vector3 {
     return this;
   }
 
-  addLocalVec(vec: Vector3): Vector3 {
+  addVecLocal(vec: Vector3): Vector3 {
     if (vec instanceof Vector3) {
       this.x += vec.x;
       this.y += vec.y;
@@ -258,9 +260,9 @@ export class Vector3 {
     }
   }
 
-  mult(scalar: number): Vector3;
-  mult(scalar: number, product: Vector3): Vector3;
-  mult(scalar: number, product?: Vector3): Vector3 {
+  multScalar(scalar: number): Vector3;
+  multScalar(scalar: number, product: Vector3): Vector3;
+  multScalar(scalar: number, product?: Vector3): Vector3 {
     if (!(product instanceof Vector3)) {
       product = new Vector3();
     }
@@ -289,7 +291,7 @@ export class Vector3 {
   }
 
 
-  multLocalScalar(scalar: number): Vector3 {
+  multScalarLocal(scalar: number): Vector3 {
     this.x *= scalar;
     this.y *= scalar;
     this.z *= scalar;
@@ -368,7 +370,7 @@ export class Vector3 {
     return this;
   }
 
-  subtractLocalVec(vec: Vector3): Vector3 {
+  subtractVecLocal(vec: Vector3): Vector3 {
     if(vec instanceof Vector3) {
       this.x -= vec.x;
       this.y -= vec.y;

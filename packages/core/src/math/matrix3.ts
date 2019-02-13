@@ -960,7 +960,7 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
    *            the value to scale by.
    * @return this Matrix3f
    */
-  public multLocalScalar(scale: number): Matrix3 {
+  public multScalarLocal(scale: number): Matrix3 {
     this.m00 *= scale;
     this.m01 *= scale;
     this.m02 *= scale;
@@ -983,7 +983,7 @@ export class Matrix3 implements Savable, Cloneable<Matrix3> {
    *            the vector to multiply this matrix by.
    * @return The passed vector after multiplication
    */
-  public multLocalVec(vec: Vector3): Vector3 {
+  public multVecLocal(vec: Vector3): Vector3 {
     if (!vec) {
       return null;
     }
