@@ -8,8 +8,6 @@ import { NumberUtils } from '../util/number-utils';
  * A <code>CollisionResult</code> represents a single collision instance
  * between two {@link Collidable}. A collision check can result in many
  * collision instances (places where collision has occured).
- *
- * @author Kirill Vainer
  */
 export class CollisionResult implements Comparable<CollisionResult> {
 

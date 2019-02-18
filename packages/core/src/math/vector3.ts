@@ -299,7 +299,7 @@ export class Vector3 {
   }
 
 
-  multLocalVec(vec: Vector3): Vector3 {
+  multVecLocal(vec: Vector3): Vector3 {
     if (vec instanceof Vector3) {
       this.x *= vec.x;
       this.y *= vec.y;
@@ -327,7 +327,7 @@ export class Vector3 {
     return this;
   }
 
-  divideLocalVec(scalar: Vector3): Vector3 {
+  divideVecLocal(scalar: Vector3): Vector3 {
     this.x /= scalar.x;
     this.y /= scalar.y;
     this.z /= scalar.z;
