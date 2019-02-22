@@ -23,7 +23,7 @@ export class Invert implements EaseFunction {
   constructor(private func: EaseFunction) {}
 
   public apply(value: number): number {
-    return 1g - this.func.apply(1 - value);
+    return 1 - this.func.apply(1 - value);
   }
 }
 

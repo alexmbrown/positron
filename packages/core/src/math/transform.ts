@@ -18,28 +18,6 @@ export class Transform implements Savable, Cloneable<Transform> {
 
   private translation: Vector3 = new Vector3();
 
-  // public Transform(Vector3f translation, Quaternion rot) {
-  //   this.translation.set(translation);
-  //   this.rot.set(rot);
-  // }
-  //
-  // public Transform(Vector3f translation, Quaternion rot, Vector3f scale){
-  //   this(translation, rot);
-  //   this.scale.set(scale);
-  // }
-  //
-  // public Transform(Vector3f translation){
-  //   this(translation, Quaternion.IDENTITY);
-  // }
-  //
-  // public Transform(Quaternion rot){
-  //   this(Vector3f.ZERO, rot);
-  // }
-  //
-  // public Transform(){
-  //   this(Vector3f.ZERO, Quaternion.IDENTITY);
-  // }
-
   constructor();
   constructor(rot: Quaternion);
   constructor(translation: Vector3);

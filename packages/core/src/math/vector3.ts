@@ -219,7 +219,7 @@ export class Vector3 {
     if (other instanceof Vector3) {
       let n: number = this.dot(other); // A . B
       let d: number = other.lengthSquared(); // |B|^2
-      return new Vector3(other).multLocalScalar(n/d);
+      return new Vector3(other).multScalarLocal(n/d);
     }
   }
 
@@ -227,7 +227,7 @@ export class Vector3 {
     if (other instanceof Vector3) {
       let n: number = this.dot(other); // A . B
       let d: number = other.lengthSquared(); // |B|^2
-      return this.setVec(other).multLocalScalar(n/d);
+      return this.copy(other).multScalarLocal(n/d);
     }
   }
 

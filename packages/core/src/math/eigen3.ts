@@ -14,9 +14,8 @@ export class Eigen3 {
   private static ROOT_THREE: number = Math.sqrt(3.0);
 
   constructor();
-
-  constructor(data?: Matrix3);
-  constructor(data: Matrix3) {
+  constructor(data: Matrix3);
+  constructor(data?: Matrix3) {
     this.calculateEigen(data);
   }
 
@@ -59,9 +58,9 @@ export class Eigen3 {
           }
         }
 
-        this.eigenVectors[0].set(Vector3.UNIT_X);
-        this.eigenVectors[1].set(Vector3.UNIT_Y);
-        this.eigenVectors[2].set(Vector3.UNIT_Z);
+        this.eigenVectors[0].copy(Vector3.UNIT_X);
+        this.eigenVectors[1].copy(Vector3.UNIT_Y);
+        this.eigenVectors[2].copy(Vector3.UNIT_Z);
         return;
       }
       maxValues[i] = val[0];
@@ -175,12 +174,12 @@ export class Eigen3 {
         invLength = FastMath.invSqrt(p00 * p00 + p01 * p01);
         p00 *= invLength;
         p01 *= invLength;
-        vectorU.mult(p01, this.eigenVectors[index3]).addVecLocal(vectorV.mult(p00));
+        vectorU.multScalar(p01, this.eigenVectors[index3]).addVecLocal(vectorV.multScalar(p00));
       } else {
         invLength = FastMath.invSqrt(p11 * p11 + p01 * p01);
         p11 *= invLength;
         p01 *= invLength;
-        vectorU.mult(p11, this.eigenVectors[index3]).addVecLocal(vectorV.mult(p01));
+        vectorU.multScalar(p11, this.eigenVectors[index3]).addVecLocal(vectorV.multScalar(p01));
       }
     } else {
       if (row == 0) {
@@ -278,46 +277,49 @@ export class Eigen3 {
    */
   private computeRoots(mat: Matrix3, rootsStore: number[]): void {
     // Convert the unique matrix entries to double precision.
-    double a = mat.m00, b = mat.m01, c = mat.m02,
-      d = mat.m11, e = mat.m12,
-      f = mat.m22;
+    const a: number = mat.m00;
+    const b: number = mat.m01;
+    const c: number = mat.m02;
+    const d: number = mat.m11;
+    const e: number = mat.m12;
+    const f: number = mat.m22;
 
     // The characteristic equation is x^3 - c2*x^2 + c1*x - c0 = 0. The
     // eigenvalues are the roots to this equation, all guaranteed to be
     // real-valued, because the matrix is symmetric.
-    double char0 = a * d * f + 2.0 * b * c * e - a
+    const char0: number = a * d * f + 2.0 * b * c * e - a
       * e * e - d * c * c - f * b * b;
 
-    double char1 = a * d - b * b + a * f - c * c
+    const char1: number = a * d - b * b + a * f - c * c
       + d * f - e * e;
 
-    double char2 = a + d + f;
+    const char2: number = a + d + f;
 
     // Construct the parameters used in classifying the roots of the
     // equation and in solving the equation for the roots in closed form.
-    double char2Div3 = char2 * ONE_THIRD_DOUBLE;
-    double abcDiv3 = (char1 - char2 * char2Div3) * ONE_THIRD_DOUBLE;
+    const char2Div3: number = char2 * Eigen3.ONE_THIRD;
+    let abcDiv3: number = (char1 - char2 * char2Div3) * Eigen3.ONE_THIRD;
     if (abcDiv3 > 0.0) {
       abcDiv3 = 0.0;
     }
 
-    double mbDiv2 = 0.5 * (char0 + char2Div3 * (2.0 * char2Div3 * char2Div3 - char1));
+    const mbDiv2: number = 0.5 * (char0 + char2Div3 * (2.0 * char2Div3 * char2Div3 - char1));
 
-    double q = mbDiv2 * mbDiv2 + abcDiv3 * abcDiv3 * abcDiv3;
+    let q: number = mbDiv2 * mbDiv2 + abcDiv3 * abcDiv3 * abcDiv3;
     if (q > 0.0) {
       q = 0.0;
     }
 
     // Compute the eigenvalues by solving for the roots of the polynomial.
-    double magnitude = Math.sqrt(-abcDiv3);
-    double angle = Math.atan2(Math.sqrt(-q), mbDiv2) * ONE_THIRD_DOUBLE;
-    double cos = Math.cos(angle);
-    double sin = Math.sin(angle);
-    double root0 = char2Div3 + 2.0 * magnitude * cos;
-    double root1 = char2Div3 - magnitude
-      * (cos + ROOT_THREE_DOUBLE * sin);
-    double root2 = char2Div3 - magnitude
-      * (cos - ROOT_THREE_DOUBLE * sin);
+    const magnitude: number = Math.sqrt(-abcDiv3);
+    const angle: number = Math.atan2(Math.sqrt(-q), mbDiv2) * Eigen3.ONE_THIRD;
+    const cos: number = Math.cos(angle);
+    const sin: number = Math.sin(angle);
+    const root0: number = char2Div3 + 2.0 * magnitude * cos;
+    const root1: number = char2Div3 - magnitude
+      * (cos + Eigen3.ROOT_THREE * sin);
+    const root2 = char2Div3 - magnitude
+      * (cos - Eigen3.ROOT_THREE * sin);
 
     // Sort in increasing order.
     if (root1 >= root0) {
